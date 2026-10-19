@@ -24,4 +24,4 @@ PDF soru kitapçıklarından ya da sayfa fotoğraflarından soruları kırpıp b
 - [PDF.js](https://mozilla.github.io/pdf.js/) — PDF görüntüleme (Apache-2.0)
 - [pdf-lib](https://pdf-lib.js.org/) — PDF oluşturma (MIT)
 - [SortableJS](https://sortablejs.github.io/Sortable/) — sürükle-bırak sıralama (MIT)
-- [Bodoni Moda](https://fonts.google.com/specimen/Bodoni+Moda) ve [Jost](https://fonts.google.com/specimen/Jost) yazı tipleri (SIL Open Font License)
+- [Jost](https://fonts.google.com/specimen/Jost) yazı tipi (SIL Open Font License)

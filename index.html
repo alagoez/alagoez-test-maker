@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Alagoez Test Maker</title>
+<meta name="description" content="PDF soru kitapçıklarından soru kırpıp baskıya hazır test oluşturun. Soru sınırı yok, dosyalar tarayıcıdan çıkmaz.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" href="app/assets/favicon.png">
+<link rel="apple-touch-icon" href="app/assets/apple-touch-icon.png">
+<meta property="og:title" content="Alagoez Test Maker">
+<meta property="og:description" content="PDF'ten soru kırpıp baskıya hazır test oluşturun.">
+<meta property="og:image" content="app/assets/og-image.png">
 <link rel="stylesheet" href="lib/fonts/fonts.css">
 <link rel="stylesheet" href="app/style.css">
 </head>
@@ -11,7 +18,6 @@
 <!-- İkon seti (Lucide çizgi stili) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="i-logo" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></symbol>
     <symbol id="i-upload" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
@@ -32,8 +38,8 @@
 
 <header class="topbar">
   <div class="brand">
-    <span class="brand-mark"><svg class="ic"><use href="#i-logo"/></svg></span>
-    <span class="brand-text"><b>Alagoez Test Maker</b><small>Sınav Atölyesi</small></span>
+    <img class="brand-logo" src="app/assets/wordmark-white.png" alt="Alagoez">
+    <span class="brand-sub">test maker</span>
   </div>
   <label class="btn gold">
     <svg class="ic"><use href="#i-upload"/></svg> PDF / Resim Yükle
@@ -58,8 +64,8 @@
   <section class="viewer" id="viewer">
     <div class="empty" id="emptyState">
       <div class="empty-card">
-        <p class="eyebrow">Profesyonel sınav atölyesi</p>
-        <h1>Kendi testini <em>zarafetle</em> hazırla</h1>
+        <img class="empty-logo" src="app/assets/logo-white.png" alt="Alagoez test maker">
+        <h1>Kendi testini dakikalar içinde hazırla</h1>
         <p class="lead">Soru kitapçığından istediğin soruları kes, sırala ve baskıya hazır, kusursuz bir sınav kağıdına dönüştür. Soru sınırı yok.</p>
         <ol class="steps">
           <li><span>I</span><b>Dosyayı aç</b>PDF kitapçık ya da sayfa fotoğrafı</li>
@@ -157,7 +163,7 @@
             <button class="swatch" data-color="#8b1e2d" style="--c:#8b1e2d" title="Bordo" aria-label="Bordo"></button>
             <button class="swatch" data-color="#5b2a86" style="--c:#5b2a86" title="Mor" aria-label="Mor"></button>
             <button class="swatch" data-color="#9a6b1f" style="--c:#9a6b1f" title="Altın" aria-label="Altın"></button>
-            <button class="swatch" data-color="#14161c" style="--c:#14161c" title="Siyah" aria-label="Siyah"></button>
+            <button class="swatch" data-color="#111111" style="--c:#111111" title="Siyah" aria-label="Siyah"></button>
             <input type="color" data-key="color" title="Başka renk seç" aria-label="Başka renk seç">
           </div></div>
         <div class="field"><label>Filigran yazısı (boş bırakırsan eklenmez)</label><input type="text" data-key="watermark" placeholder="ör. okul adı"></div>

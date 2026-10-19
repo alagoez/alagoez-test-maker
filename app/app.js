@@ -28,7 +28,7 @@ const DEFAULTS = {
   studentLine: true, showTeacher: false, teacher: '',
   paper: 'A4', orientation: 'portrait', columns: 2, marginPreset: 'normal', margin: 42,
   divider: true, numbering: true, startNo: 1, scale: 100, spacing: 16, answerSpace: 0,
-  color: '#1e3a8a', watermark: '',
+  color: '#111111', watermark: '',
   pageNumbers: true, answerKey: true,
 };
 

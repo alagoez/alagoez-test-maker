@@ -1,36 +1,36 @@
-/* Alagoez Test Maker — "Mürekkep & Altın" tasarım sistemi */
+/* Alagoez Test Maker — siyah & beyaz (logo renkleri) tasarım sistemi */
 :root {
-  /* Mürekkep (koyu yüzeyler) */
-  --ink-950: #0b0d12;
-  --ink-900: #11141b;
-  --ink-800: #191d27;
-  --ink-700: #252a36;
-  --ink-600: #343a49;
-  --on-ink: #ece6d8;
-  --on-ink-muted: #9da2b0;
+  /* Siyah yüzeyler */
+  --ink-950: #000000;
+  --ink-900: #0a0a0a;
+  --ink-800: #141414;
+  --ink-700: #1f1f1f;
+  --ink-600: #3a3a3a;
+  --on-ink: #f5f5f5;
+  --on-ink-muted: #a3a3a3;
 
-  /* Altın vurgular */
-  --gold-200: #f0dfb4;
-  --gold-300: #e2c88f;
-  --gold-400: #d4ad62;
-  --gold-500: #c19a4b;
-  --gold-600: #a07a2c;
-  --gold-700: #7d5e1f;       /* açık zemin üzerinde metin için (AA) */
-  --gold-grad: linear-gradient(135deg, #e6c77f 0%, #c99a46 52%, #a97c2f 100%);
-  --gold-soft: rgba(193, 154, 75, .12);
+  /* Vurgu tonları (eski "gold" adlı değişkenler artık tek renkli) */
+  --gold-200: #ffffff;
+  --gold-300: #e5e5e5;
+  --gold-400: #404040;
+  --gold-500: #0a0a0a;
+  --gold-600: #171717;
+  --gold-700: #525252;       /* açık zemin üzerinde ikincil metin (AA) */
+  --gold-grad: linear-gradient(180deg, #262626 0%, #000000 100%);
+  --gold-soft: rgba(0, 0, 0, .06);
 
   /* Açık yüzeyler */
-  --ivory: #faf8f3;
+  --ivory: #fafafa;
   --paper: #ffffff;
-  --stone: #e9e5dc;
-  --stone-2: #dfd9cc;
-  --line: #e6e0d3;
-  --line-strong: #d6cebd;
-  --text: #1a1c23;
-  --muted: #646875;
-  --danger: #a8261f;
+  --stone: #ededed;
+  --stone-2: #d9d9d9;
+  --line: #e7e7e7;
+  --line-strong: #d4d4d4;
+  --text: #0a0a0a;
+  --muted: #5f5f5f;
+  --danger: #b42318;
 
-  --serif: "Bodoni Moda", "Didot", "Times New Roman", serif;
+  --serif: "Jost", "Segoe UI", system-ui, sans-serif;
   --sans: "Jost", "Segoe UI", system-ui, sans-serif;
 
   --r-sm: 8px;
@@ -67,7 +67,7 @@ button { cursor: pointer; }
   display: flex; align-items: center; gap: 14px;
   padding: 10px 20px; min-height: 64px;
   background:
-    radial-gradient(1200px 120px at 10% -40px, rgba(212, 173, 98, .16), transparent 60%),
+    radial-gradient(1200px 120px at 10% -40px, rgba(255, 255, 255, .16), transparent 60%),
     linear-gradient(180deg, var(--ink-800), var(--ink-900));
   color: var(--on-ink);
   box-shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 8px 24px -12px rgba(0, 0, 0, .5);
@@ -75,13 +75,13 @@ button { cursor: pointer; }
 }
 .topbar::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 173, 98, .55), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
 }
 .brand { display: flex; align-items: center; gap: 12px; margin-right: 6px; white-space: nowrap; }
 .brand-mark {
   width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
   background: var(--gold-grad); color: var(--ink-900);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset, 0 6px 16px -6px rgba(201, 154, 70, .7);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset, 0 6px 16px -6px rgba(0, 0, 0, .7);
 }
 .brand-mark .ic { width: 20px; height: 20px; stroke-width: 2; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
@@ -99,7 +99,7 @@ button { cursor: pointer; }
   transition: background var(--t) var(--ease), color var(--t) var(--ease), border-color var(--t) var(--ease);
 }
 .doc-tab:hover { background: rgba(255, 255, 255, .08); color: var(--on-ink); }
-.doc-tab.active { border-color: rgba(212, 173, 98, .55); background: rgba(212, 173, 98, .12); color: var(--gold-200); }
+.doc-tab.active { border-color: rgba(255, 255, 255, .55); background: rgba(255, 255, 255, .12); color: var(--gold-200); }
 .doc-tab .ic { width: 15px; height: 15px; }
 .doc-tab .name { max-width: 170px; overflow: hidden; text-overflow: ellipsis; }
 .doc-tab .x {
@@ -150,9 +150,9 @@ button { cursor: pointer; }
 .btn.gold {
   border: 0; color: var(--ink-950); font-weight: 600;
   background: var(--gold-grad);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset, 0 8px 20px -8px rgba(169, 124, 47, .75);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset, 0 8px 20px -8px rgba(0, 0, 0, .75);
 }
-.btn.gold:hover { filter: brightness(1.05) saturate(1.05); box-shadow: 0 0 0 1px rgba(255, 255, 255, .35) inset, 0 12px 26px -8px rgba(169, 124, 47, .85); }
+.btn.gold:hover { filter: brightness(1.05) saturate(1.05); box-shadow: 0 0 0 1px rgba(255, 255, 255, .35) inset, 0 12px 26px -8px rgba(0, 0, 0, .85); }
 .btn.ghost { background: transparent; }
 .btn.ghost:hover { background: var(--paper); }
 .btn.small { height: 34px; padding: 0 12px; font-size: 13px; border-radius: 9px; }
@@ -182,18 +182,18 @@ main { flex: 1; display: grid; grid-template-columns: 1fr 390px; min-height: 0; 
 
 .band {
   position: absolute; pointer-events: none; border-radius: 3px;
-  border: 1.5px dashed var(--gold-600); background: rgba(193, 154, 75, .10);
+  border: 1.5px dashed var(--gold-600); background: rgba(10, 10, 10, .10);
   box-shadow: 0 0 0 9999px rgba(17, 20, 27, .06);
 }
 
 /* Seçilen sorular */
 .sel {
   position: absolute; cursor: move; touch-action: none; border-radius: 3px;
-  border: 1.5px solid var(--gold-500); background: rgba(193, 154, 75, .07);
-  box-shadow: 0 0 0 3px rgba(193, 154, 75, .14);
+  border: 1.5px solid var(--gold-500); background: rgba(10, 10, 10, .07);
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, .14);
   transition: box-shadow var(--t) var(--ease), background var(--t) var(--ease);
 }
-.sel:hover { background: rgba(193, 154, 75, .12); box-shadow: 0 0 0 4px rgba(193, 154, 75, .22); }
+.sel:hover { background: rgba(10, 10, 10, .12); box-shadow: 0 0 0 4px rgba(10, 10, 10, .22); }
 .sel .badge {
   position: absolute; left: -1.5px; top: -24px; height: 22px; display: flex; align-items: center;
   padding: 0 9px; border-radius: 6px 6px 0 0;
@@ -223,14 +223,14 @@ main { flex: 1; display: grid; grid-template-columns: 1fr 390px; min-height: 0; 
 .sel .h.sw { left: -6px; bottom: -6px; cursor: nesw-resize; }
 .sel .h.w  { left: -6px; top: calc(50% - 6px); cursor: ew-resize; }
 .sel.flash { animation: flash 1.1s var(--ease) 2; }
-@keyframes flash { 50% { background: rgba(226, 200, 143, .55); box-shadow: 0 0 0 8px rgba(193, 154, 75, .25); } }
+@keyframes flash { 50% { background: rgba(0, 0, 0, .55); box-shadow: 0 0 0 8px rgba(10, 10, 10, .25); } }
 
 /* Kırpınca çıkan cevap seçimi */
 .ans-pop {
   position: absolute; z-index: 5; display: flex; align-items: center; gap: 4px;
   padding: 6px; border-radius: 12px; cursor: default;
   background: var(--ink-900); color: var(--on-ink-muted); font-size: 12px; letter-spacing: .04em;
-  box-shadow: var(--shadow-3), 0 0 0 1px rgba(212, 173, 98, .35);
+  box-shadow: var(--shadow-3), 0 0 0 1px rgba(255, 255, 255, .35);
   animation: pop 160ms var(--ease);
 }
 .ans-pop > span { padding: 0 6px 0 8px; text-transform: uppercase; font-size: 11px; letter-spacing: .14em; }
@@ -416,14 +416,14 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .busy-card {
   display: flex; gap: 16px; align-items: center; padding: 22px 30px; border-radius: 16px;
   background: var(--ink-900); color: var(--on-ink); font-weight: 500; letter-spacing: .02em;
-  box-shadow: var(--shadow-3), 0 0 0 1px rgba(212, 173, 98, .3);
+  box-shadow: var(--shadow-3), 0 0 0 1px rgba(255, 255, 255, .3);
 }
-.spinner { width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid rgba(212, 173, 98, .2); border-top-color: var(--gold-400); animation: spin .8s linear infinite; }
+.spinner { width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, .2); border-top-color: var(--gold-400); animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 #toast {
   position: fixed; left: 50%; bottom: 28px; z-index: 60; transform: translate(-50%, 10px);
   padding: 12px 20px; border-radius: 12px; font-size: 14px;
-  background: var(--ink-900); color: var(--on-ink); box-shadow: var(--shadow-3), 0 0 0 1px rgba(212, 173, 98, .3);
+  background: var(--ink-900); color: var(--on-ink); box-shadow: var(--shadow-3), 0 0 0 1px rgba(255, 255, 255, .3);
   opacity: 0; pointer-events: none; transition: opacity var(--t), transform var(--t) var(--ease);
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -458,3 +458,47 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
   .empty-card { padding: 34px 22px; }
   .empty-card h1 { font-size: 30px; }
 }
+
+/* ───────────── Siyah & beyaz marka katmanı ───────────── */
+.topbar { background: #000; box-shadow: 0 10px 30px -18px rgba(0, 0, 0, .8); }
+.topbar::after { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .22), transparent); }
+.brand { gap: 14px; }
+.brand-logo { display: block; height: 24px; width: auto; }
+.brand-sub { padding-left: 14px; border-left: 1px solid rgba(255, 255, 255, .22); font-size: 12px; letter-spacing: .38em; color: #d4d4d4; text-transform: lowercase; }
+
+.btn.gold { color: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .06) inset, 0 8px 20px -10px rgba(0, 0, 0, .7); }
+.btn.gold:hover { filter: none; background: #262626; box-shadow: 0 12px 26px -10px rgba(0, 0, 0, .75); }
+.topbar .btn.gold, .empty-card .btn.gold { background: #fff; color: #000; box-shadow: 0 8px 24px -12px rgba(255, 255, 255, .45); }
+.topbar .btn.gold:hover, .empty-card .btn.gold:hover { background: #e9e9e9; }
+
+.doc-tab.active { border-color: rgba(255, 255, 255, .55); background: rgba(255, 255, 255, .1); color: #fff; }
+.switch input:checked + .track { background: #fff; }
+.switch input:checked + .track::after { background: #000; box-shadow: none; }
+.switch input:focus-visible + .track { outline-color: #fff; }
+.topbar :focus-visible { outline-color: #fff; }
+
+.ans-pop { box-shadow: var(--shadow-3), 0 0 0 1px rgba(255, 255, 255, .16); }
+.ans-pop button:hover { background: #fff; color: #000; border-color: #fff; }
+.sel .badge { background: #0a0a0a; color: #fff; }
+.spinner { border-color: rgba(255, 255, 255, .18); border-top-color: #fff; }
+#dropHint { border-color: rgba(255, 255, 255, .7); }
+
+.group h3 { font-size: 11.5px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; }
+.q-no { font-weight: 700; font-size: 19px; }
+.q-empty b { font-weight: 600; font-size: 16px; }
+
+/* Boş durum: logonun siyah sahnesi */
+.empty-card {
+  background: radial-gradient(120% 90% at 50% 0%, #1a1a1a 0%, #050505 60%, #000 100%);
+  color: var(--on-ink);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .06) inset;
+}
+.empty-card::before { height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .35), transparent); }
+.empty-logo { display: block; width: 340px; max-width: 78%; height: auto; margin: 6px auto 30px; }
+.empty-card h1 { font-family: var(--sans); font-weight: 500; font-size: 26px; letter-spacing: -.005em; color: #fff; }
+.empty-card .lead { color: var(--on-ink-muted); margin-top: 12px; }
+.steps li { background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .09); color: var(--on-ink-muted); }
+.steps li b { color: #fff; }
+.steps li span { font-family: var(--sans); font-size: 12px; letter-spacing: .3em; color: #8a8a8a; }
+.note { color: #8a8a8a; }
+.note .ic { color: #d4d4d4; }

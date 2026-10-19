@@ -84,9 +84,56 @@ function toast(msg, ms = 2600) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
 }
 function busy(on, text) {
-  $('#busy').hidden = !on;
+  const b = $('#busy');
   if (text) $('#busyText').textContent = text;
+  if (on) {
+    b.hidden = false;
+    requestAnimationFrame(() => b.classList.add('show'));
+  } else {
+    b.classList.remove('show');
+    setTimeout(() => { if (!b.classList.contains('show')) b.hidden = true; }, 220);
+  }
 }
+
+/* ---------- Animasyon yardımcıları ---------- */
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const enterIds = new Set();   // bir sonraki çizimde giriş animasyonu alacak sorular
+let popAnswerId = null;       // cevabı az önce seçilen soru
+const seenDocs = new Set();   // sekmesi zaten gösterilmiş belgeler
+
+// Öğeye çıkış sınıfı ekleyip animasyon bitene kadar bekler.
+function animateOut(els, ms = 200) {
+  const list = [els].flat().filter(Boolean);
+  if (!list.length || reduceMotion()) return Promise.resolve();
+  list.forEach(el => el.classList.add('leave'));
+  return new Promise(r => setTimeout(r, ms));
+}
+// Sekme/segment kaydırmalı göstergesini aktif öğeye taşır.
+function moveIndicator(box) {
+  const act = box?.querySelector('.active');
+  if (!act || !act.offsetWidth) return;
+  box.style.setProperty('--ind-x', act.offsetLeft + 'px');
+  box.style.setProperty('--ind-w', act.offsetWidth + 'px');
+  box.classList.add('has-ind');
+}
+function bump(el) {
+  if (!el || reduceMotion()) return;
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+}
+// Tıklanan düğmede dalga efekti
+function ripple(e) {
+  const b = e.target.closest('.btn, .tab, .modes button, .ans button, .icon-btn, .ans-pop button');
+  if (!b || e.button !== 0 || reduceMotion()) return;
+  const r = b.getBoundingClientRect();
+  const s = Math.max(r.width, r.height) * 2.2;
+  const span = document.createElement('span');
+  span.className = 'ripple';
+  span.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX - r.left - s / 2}px;top:${e.clientY - r.top - s / 2}px`;
+  b.appendChild(span);
+  span.addEventListener('animationend', () => span.remove());
+}
+const qCard = id => $(`#qList .q[data-id="${id}"]`);
+const qSels = id => [...document.querySelectorAll(`.sel[data-id="${id}"]`)];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const activeDoc = () => S.docs.find(d => d.id === S.activeDoc) || null;
 const docById = id => S.docs.find(d => d.id === id);
@@ -143,10 +190,11 @@ async function addFiles(files) {
   }
 }
 
-function removeDoc(id) {
+async function removeDoc(id) {
   const doc = docById(id);
   const n = S.questions.filter(q => q.docId === id).length;
   if (!confirm(`"${doc.name}" kapatılsın mı?` + (n ? `\nBu dosyadan seçilen ${n} soru da listeden silinecek.` : ''))) return;
+  await animateOut([$(`.doc-tab[data-id="${id}"]`), ...S.questions.filter(q => q.docId === id).map(q => qCard(q.id))], 200);
   S.questions = S.questions.filter(q => q.docId !== id);
   S.docs = S.docs.filter(d => d.id !== id);
   doc.pdf.destroy();
@@ -156,11 +204,13 @@ function removeDoc(id) {
 }
 
 function renderTabs() {
+  const fresh = id => (seenDocs.has(id) ? '' : 'enter');
   $('#docTabs').innerHTML = S.docs.map(d => `
-    <div class="doc-tab ${d.id === S.activeDoc ? 'active' : ''}" data-id="${d.id}" title="${esc(d.name)}">
+    <div class="doc-tab ${d.id === S.activeDoc ? 'active' : ''} ${fresh(d.id)}" data-id="${d.id}" title="${esc(d.name)}">
       <svg class="ic"><use href="#i-file"/></svg><span class="name">${esc(d.name.replace(/\.(pdf|jpe?g|png|webp|gif|bmp)$/i, ''))}</span>
       <button class="x" data-close="${d.id}" title="Kapat" aria-label="Kapat"><svg class="ic"><use href="#i-x"/></svg></button>
     </div>`).join('');
+  S.docs.forEach(d => seenDocs.add(d.id));
 }
 
 /* ---------- Görüntüleyici ---------- */
@@ -172,7 +222,8 @@ async function renderViewer() {
   box.innerHTML = '';
   S.pages = [];
   observer?.disconnect();
-  $('#zoomLabel').textContent = Math.round(S.zoom * 100) + '%';
+  const zl = $('#zoomLabel'), zt = Math.round(S.zoom * 100) + '%';
+  if (zl.textContent !== zt) { zl.textContent = zt; bump(zl); }
   const doc = activeDoc();
   $('#emptyState').hidden = !!doc;
   if (!doc) return;
@@ -190,7 +241,8 @@ async function renderViewer() {
     if (gen !== viewGen) return;
     const vp = page.getViewport({ scale });
     const wrap = document.createElement('div');
-    wrap.className = 'page-wrap';
+    wrap.className = 'page-wrap enter';
+    wrap.style.setProperty('--i', Math.min(i, 4));
     wrap.innerHTML = `<div class="page-label">Sayfa ${i + 1} / ${doc.pdf.numPages}</div>
       <div class="page" style="width:${Math.floor(vp.width)}px;height:${Math.floor(vp.height)}px">
         <canvas></canvas><div class="overlay"></div></div>`;
@@ -222,6 +274,7 @@ async function renderPage(ps) {
   c.height = Math.floor(ps.vp.height * dpr);
   const ctx = c.getContext('2d', { willReadFrequently: true });
   await ps.page.render({ canvasContext: ctx, viewport: ps.vp, transform: [dpr, 0, 0, dpr, 0, 0] }).promise;
+  ps.el.classList.add('ready');
 }
 
 function zoomTo(z) {
@@ -327,6 +380,7 @@ async function addCrop(ps, r) {
     ...cropFields(ps, r),
   };
   S.questions.push(q);
+  enterIds.add(q.id);
   afterQChange();
   $('#qList').lastElementChild?.scrollIntoView({ block: 'nearest' });
   if ($('#askAnswer').checked) showAnswerPopup(ps, q);
@@ -347,6 +401,7 @@ function closeAnswerPopup() {
 function setPopupAnswer(letter) {
   if (!answerPop) return;
   answerPop.q.answer = letter;
+  popAnswerId = answerPop.q.id;
   closeAnswerPopup();
   afterQChange();
 }
@@ -414,7 +469,7 @@ function drawSelections(ps) {
     const [ax, ay] = ps.vp.convertToViewportPoint(q.rect[0], q.rect[1]);
     const [bx, by] = ps.vp.convertToViewportPoint(q.rect[2], q.rect[3]);
     const el = document.createElement('div');
-    el.className = 'sel';
+    el.className = enterIds.has(q.id) ? 'sel enter' : 'sel';
     el.dataset.id = q.id;
     el.title = 'Sürükleyerek taşı, köşelerinden boyutlandır';
     Object.assign(el.style, {
@@ -434,15 +489,18 @@ function refreshSelections() { S.pages.forEach(drawSelections); }
 
 /* ---------- Soru listesi ---------- */
 function renderQList() {
-  $('#qCount').textContent = S.questions.length;
+  const cnt = $('#qCount');
+  if (cnt.textContent !== String(S.questions.length)) { cnt.textContent = S.questions.length; bump(cnt); }
   const list = $('#qList');
   if (!S.questions.length) {
     list.innerHTML = `<div class="q-empty"><svg class="ic"><use href="#i-crop"/></svg><b>Henüz soru seçmedin</b><span>Soldaki sayfada bir sorunun etrafına fareyle kutu çiz; soru burada belirir.</span></div>`;
     return;
   }
+  let k = 0; // aynı anda giren kartlar için kademe
   list.innerHTML = S.questions.map((q, i) => {
     const doc = docById(q.docId);
-    return `<div class="q" data-id="${q.id}">
+    const enter = enterIds.has(q.id);
+    return `<div class="q${enter ? ' enter' : ''}" data-id="${q.id}"${enter ? ` style="--i:${Math.min(k++, 10)}"` : ''}>
       <div class="q-top">
         <span class="handle" title="Sürükleyerek sırala"><svg class="ic"><use href="#i-grip"/></svg></span>
         <span class="q-no">${S.settings.startNo + i}.</span>
@@ -450,7 +508,7 @@ function renderQList() {
         <button class="del" title="Kaldır" aria-label="Soruyu kaldır"><svg class="ic"><use href="#i-trash"/></svg></button>
       </div>
       <img src="${q.thumb}" alt="Soru ${i + 1}" title="Sayfada göster">
-      <div class="ans">Cevap: ${LETTERS.map(L => `<button data-a="${L}" class="${q.answer === L ? 'on' : ''}">${L}</button>`).join('')}</div>
+      <div class="ans">Cevap: ${LETTERS.map(L => `<button data-a="${L}" class="${q.answer === L ? (popAnswerId === q.id ? 'on pop' : 'on') : ''}">${L}</button>`).join('')}</div>
     </div>`;
   }).join('');
 }
@@ -458,11 +516,14 @@ function renderQList() {
 function afterQChange() {
   renderQList();
   refreshSelections();
+  enterIds.clear();
+  popAnswerId = null;
   saveState();
 }
 
-function removeQuestion(id) {
+async function removeQuestion(id) {
   if (answerPop?.q.id === id) closeAnswerPopup();
+  await animateOut([qCard(id), ...qSels(id)]);
   S.questions = S.questions.filter(q => q.id !== id);
   afterQChange();
 }
@@ -817,6 +878,7 @@ function syncSettingsInputs() {
   });
   document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === set.mode));
   document.querySelectorAll('.swatch').forEach(b => b.classList.toggle('active', b.dataset.color.toLowerCase() === String(set.color).toLowerCase()));
+  moveIndicator($('.modes'));
   updateOutputs();
 }
 function bindSettings() {
@@ -875,9 +937,18 @@ function bindUi() {
   $('#zoomOut').addEventListener('click', () => zoomTo(S.zoom - 0.1));
 
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    if (t.classList.contains('active')) return;
     document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
-    document.querySelectorAll('.panel').forEach(p => { p.hidden = p.id !== t.dataset.tab; });
+    moveIndicator($('.tabs'));
+    document.querySelectorAll('.panel').forEach(p => {
+      p.hidden = p.id !== t.dataset.tab;
+      p.classList.remove('enter');
+      if (!p.hidden) { void p.offsetWidth; p.classList.add('enter'); }
+    });
+    moveIndicator($('.modes'));
   }));
+  document.addEventListener('pointerdown', ripple);
+  window.addEventListener('resize', () => { moveIndicator($('.tabs')); moveIndicator($('.modes')); });
 
   const list = $('#qList');
   list.addEventListener('click', e => {
@@ -886,11 +957,11 @@ function bindUi() {
     const q = S.questions.find(x => x.id === card.dataset.id);
     if (e.target.closest('.del')) return removeQuestion(q.id);
     const a = e.target.closest('[data-a]');
-    if (a) { q.answer = q.answer === a.dataset.a ? '' : a.dataset.a; afterQChange(); return; }
+    if (a) { q.answer = q.answer === a.dataset.a ? '' : a.dataset.a; popAnswerId = q.id; afterQChange(); return; }
     if (e.target.tagName === 'IMG') showQuestion(q.id);
   });
   Sortable.create(list, {
-    handle: '.handle', animation: 150, draggable: '.q',
+    handle: '.handle', animation: 260, easing: 'cubic-bezier(.2, .8, .2, 1)', draggable: '.q',
     onEnd(e) {
       if (e.oldIndex === e.newIndex) return;
       const [moved] = S.questions.splice(e.oldIndex, 1);
@@ -900,12 +971,16 @@ function bindUi() {
   });
 
   $('#undoBtn').addEventListener('click', () => {
-    if (!S.questions.length) return;
-    closeAnswerPopup();
-    S.questions.pop(); afterQChange();
+    const last = S.questions[S.questions.length - 1];
+    if (last) removeQuestion(last.id);
   });
-  $('#clearBtn').addEventListener('click', () => {
-    if (S.questions.length && confirm('Seçilen tüm sorular listeden silinsin mi?')) { S.questions = []; afterQChange(); }
+  $('#clearBtn').addEventListener('click', async () => {
+    if (!S.questions.length || !confirm('Seçilen tüm sorular listeden silinsin mi?')) return;
+    closeAnswerPopup();
+    const cards = [...document.querySelectorAll('#qList .q')];
+    cards.forEach((c, i) => c.style.animationDelay = Math.min(i, 8) * 30 + 'ms');
+    await animateOut([...cards, ...document.querySelectorAll('.sel')], 200 + Math.min(cards.length, 8) * 30);
+    S.questions = []; afterQChange();
   });
   $('#previewBtn').addEventListener('click', () => exportPdf(true));
   $('#buildBtn').addEventListener('click', () => exportPdf(false));
@@ -946,6 +1021,7 @@ function bindUi() {
 async function init() {
   bindUi();
   bindSettings();
+  requestAnimationFrame(() => moveIndicator($('.tabs')));
   renderTabs();
   renderQList();
   renderViewer();
@@ -967,6 +1043,7 @@ async function init() {
       }
       const ids = new Set(S.docs.map(d => d.id));
       S.questions = (state?.questions || []).filter(q => ids.has(q.docId));
+      S.questions.forEach(q => enterIds.add(q.id));
       S.activeDoc = ids.has(state?.activeDoc) ? state.activeDoc : S.docs[0]?.id || null;
       busy(false);
     }
@@ -977,7 +1054,8 @@ async function init() {
   }
   renderTabs();
   renderQList();
-  renderViewer();
+  await renderViewer();
+  enterIds.clear();
 }
 
 init();

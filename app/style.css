@@ -502,3 +502,162 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .steps li span { font-family: var(--sans); font-size: 12px; letter-spacing: .3em; color: #8a8a8a; }
 .note { color: #8a8a8a; }
 .note .ic { color: #d4d4d4; }
+
+/* ═════════════ Hareket (animasyon) katmanı ═════════════ */
+:root {
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes rise    { from { opacity: 0; transform: translateY(10px); } }
+@keyframes fadeIn  { from { opacity: 0; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(.94); } }
+@keyframes cardIn  { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+@keyframes cardOut { to { opacity: 0; transform: translateX(24px) scale(.96); } }
+@keyframes selIn   { 0% { opacity: 0; transform: scale(.94); } 60% { opacity: 1; transform: scale(1.01); } 100% { transform: scale(1); } }
+@keyframes selOut  { to { opacity: 0; transform: scale(.94); } }
+@keyframes tabIn   { from { opacity: 0; transform: translateY(-6px) scale(.96); } }
+@keyframes tabOut  { to { opacity: 0; transform: scale(.9); } }
+@keyframes bump    { 0% { transform: scale(1); } 40% { transform: scale(1.28); } 100% { transform: scale(1); } }
+@keyframes popOn   { 0% { transform: scale(.7); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes ripple  { to { transform: scale(1); opacity: 0; } }
+@keyframes shimmer { from { background-position: -400px 0; } to { background-position: 400px 0; } }
+
+/* Dalga (ripple) efekti */
+.btn, .tab, .modes button, .ans button, .icon-btn, .ans-pop button { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: currentColor; opacity: .22; transform: scale(0);
+  animation: ripple .6s var(--ease-out) forwards;
+}
+
+/* Düğmeler: yükselme, basma, ikon mikro hareketleri */
+.btn { transition: transform .22s var(--spring), box-shadow .25s var(--ease-out), background .2s, border-color .2s, color .2s; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(.97); transition-duration: .08s; }
+.btn .ic, .icon-btn .ic, .q .del .ic, .doc-tab .x .ic, .tab .ic { transition: transform .3s var(--spring); }
+label.btn:hover .ic { transform: translateY(-2px); }
+#buildBtn:hover .ic { transform: translateY(2px); }
+#previewBtn:hover .ic { transform: scale(1.15); }
+#undoBtn:hover .ic { transform: rotate(-28deg); }
+#clearBtn:hover .ic, .q .del:hover .ic { transform: rotate(-10deg) scale(1.08); }
+.doc-tab .x:hover .ic { transform: rotate(90deg); }
+.icon-btn { transition: background .2s, transform .2s var(--spring); }
+.icon-btn:active { transform: scale(.88); }
+.tab:hover .ic { transform: translateY(-1px); }
+
+/* Kayan sekme / segment göstergesi */
+.tabs, .modes { position: relative; isolation: isolate; }
+.tabs.has-ind::before, .modes.has-ind::before {
+  content: ""; position: absolute; z-index: -1; top: 4px; bottom: 4px; left: 0;
+  width: var(--ind-w); transform: translateX(var(--ind-x));
+  transition: transform .38s var(--spring), width .38s var(--spring);
+}
+.tabs.has-ind::before { border-radius: 10px; background: var(--paper); box-shadow: var(--shadow-1), 0 0 0 1px var(--line); }
+.modes.has-ind::before { border-radius: 9px; background: var(--ink-900); box-shadow: var(--shadow-2); }
+.tabs.has-ind .tab.active, .modes.has-ind button.active { background: transparent; box-shadow: none; }
+.tab, .modes button { transition: color .25s var(--ease-out); }
+
+/* Panel geçişleri */
+.panel.enter { animation: rise .32s var(--ease-out) backwards; }
+.panel.enter .group { animation: rise .45s var(--ease-out) backwards; }
+.panel.enter .group:nth-child(2) { animation-delay: .04s; }
+.panel.enter .group:nth-child(3) { animation-delay: .08s; }
+.panel.enter .group:nth-child(4) { animation-delay: .12s; }
+.panel.enter .group:nth-child(5) { animation-delay: .16s; }
+
+/* Soru kartları */
+.q { transition: box-shadow .25s var(--ease-out), border-color .2s, transform .25s var(--ease-out); }
+.q:hover { transform: translateY(-2px); }
+.q.enter { animation: cardIn .5s var(--spring) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+.q.leave { animation: cardOut .2s ease-in forwards; pointer-events: none; }
+.q img { transition: transform .35s var(--ease-out), box-shadow .25s; }
+.q:hover img { transform: scale(1.012); }
+.q-empty { animation: scaleIn .4s var(--ease-out) backwards; }
+.q-empty .ic { animation: rise .6s .1s var(--spring) backwards; }
+.ans button { transition: background .2s, color .2s, border-color .2s, transform .2s var(--spring); }
+.ans button:hover { transform: translateY(-1px); }
+.ans button:active { transform: scale(.9); }
+.ans button.on.pop { animation: popOn .38s var(--spring); }
+.handle { transition: color .2s, background .2s; }
+.q .del { transition: background .2s, color .2s; }
+.count.bump, #zoomLabel.bump { animation: bump .4s var(--spring); }
+
+/* Sayfa üzerindeki seçimler */
+.sel.enter { animation: selIn .42s var(--ease-out) backwards; }
+.sel.leave { animation: selOut .18s ease-in forwards; }
+.sel .h { transition: opacity .2s, transform .2s var(--spring); }
+.sel .h:hover { transform: scale(1.35); }
+.sel .x { transition: opacity .2s, transform .28s var(--spring); }
+
+/* Cevap açılır penceresi */
+.ans-pop { animation: pop .3s var(--spring); transform-origin: top left; }
+.ans-pop > * { animation: rise .3s var(--ease-out) backwards; }
+.ans-pop > :nth-child(2) { animation-delay: .02s; }
+.ans-pop > :nth-child(3) { animation-delay: .04s; }
+.ans-pop > :nth-child(4) { animation-delay: .06s; }
+.ans-pop > :nth-child(5) { animation-delay: .08s; }
+.ans-pop > :nth-child(6) { animation-delay: .10s; }
+.ans-pop > :nth-child(7) { animation-delay: .12s; }
+.ans-pop button { transition: background .18s, color .18s, border-color .18s, transform .2s var(--spring); }
+.ans-pop button:hover { transform: translateY(-2px); }
+
+/* PDF sayfaları: iskelet parıltısı ve yumuşak beliriş */
+.page-wrap.enter { animation: rise .5s var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 70ms); }
+.page::before {
+  content: ""; position: absolute; inset: 0; border-radius: 3px;
+  background: linear-gradient(90deg, #f4f4f4 0px, #fbfbfb 200px, #f4f4f4 400px);
+  background-size: 800px 100%; animation: shimmer 1.4s linear infinite;
+  transition: opacity .4s;
+}
+.page.ready::before { opacity: 0; animation: none; }
+.page canvas { opacity: 0; transition: opacity .45s var(--ease-out); }
+.page.ready canvas { opacity: 1; }
+
+/* Üst çubuk ve belge sekmeleri */
+.brand { animation: fadeIn .6s var(--ease-out) backwards; }
+.doc-tab { transition: background .2s, color .2s, border-color .2s, transform .25s var(--spring); }
+.doc-tab:hover { transform: translateY(-1px); }
+.doc-tab.enter { animation: tabIn .4s var(--spring) backwards; }
+.doc-tab.leave { animation: tabOut .18s ease-in forwards; }
+.switch .track { transition: background .3s var(--ease-out); }
+.switch .track::after { transition: transform .38s var(--spring), background .3s; }
+.switch:active .track::after { transform: scale(.85); }
+.switch:active input:checked + .track::after { transform: translateX(14px) scale(.85); }
+
+/* Form öğeleri */
+.chk .box { transition: background .22s, border-color .22s, transform .2s var(--spring); }
+.chk:active .box { transform: scale(.88); }
+.chk .box::after { transition: transform .32s var(--spring); }
+input[type=range]::-webkit-slider-thumb { transition: transform .2s var(--spring), box-shadow .2s; }
+input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.12); }
+input[type=range]:active::-webkit-slider-thumb { transform: scale(1.3); box-shadow: 0 0 0 6px rgba(0, 0, 0, .08), 0 2px 6px rgba(0, 0, 0, .2); }
+.swatch { transition: transform .3s var(--spring), box-shadow .25s; }
+.swatch:active { transform: scale(.9); }
+.swatch.active { transform: scale(1.06); }
+
+/* Boş durum: kademeli giriş */
+.empty-card { animation: scaleIn .6s var(--ease-out) backwards; }
+.empty-card > * { animation: rise .6s var(--ease-out) backwards; }
+.empty-card > :nth-child(1) { animation-delay: .08s; }
+.empty-card > :nth-child(2) { animation-delay: .16s; }
+.empty-card > :nth-child(3) { animation-delay: .22s; }
+.empty-card > :nth-child(4) { animation-delay: .28s; }
+.empty-card > :nth-child(5) { animation-delay: .36s; }
+.empty-card > :nth-child(6) { animation-delay: .42s; }
+.steps li { transition: transform .3s var(--spring), border-color .25s, background .25s; }
+.steps li:hover { transform: translateY(-3px); border-color: rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .07); }
+
+/* Katmanlar */
+#busy { opacity: 0; transition: opacity .22s var(--ease-out); }
+#busy.show { opacity: 1; }
+#busy .busy-card { transform: scale(.94) translateY(6px); transition: transform .35s var(--spring); }
+#busy.show .busy-card { transform: none; }
+#toast { transform: translate(-50%, 18px) scale(.95); transition: opacity .25s var(--ease-out), transform .45s var(--spring); }
+#toast.show { transform: translate(-50%, 0) scale(1); }
+#dropHint:not([hidden]) { animation: fadeIn .2s var(--ease-out); }
+#dropHint:not([hidden]) div { animation: scaleIn .35s var(--spring); }
+
+@media (prefers-reduced-motion: reduce) {
+  .page::before { animation: none; }
+  .ripple { display: none; }
+}

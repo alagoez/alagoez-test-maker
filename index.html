@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alagoez Test Maker</title>
+<link rel="stylesheet" href="lib/fonts/fonts.css">
+<link rel="stylesheet" href="app/style.css">
+</head>
+<body>
+<!-- İkon seti (Lucide çizgi stili) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-crop" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"><svg class="ic"><use href="#i-logo"/></svg></span>
+    <span class="brand-text"><b>Alagoez Test Maker</b><small>Sınav Atölyesi</small></span>
+  </div>
+  <label class="btn gold">
+    <svg class="ic"><use href="#i-upload"/></svg> PDF / Resim Yükle
+    <input type="file" id="fileInput" accept="application/pdf,.pdf,image/*" multiple hidden>
+  </label>
+  <div class="doc-tabs" id="docTabs"></div>
+  <div class="spacer"></div>
+  <label class="switch" title="Soruyu kırptıktan hemen sonra A-E cevap seçimi gösterir">
+    <input type="checkbox" id="askAnswer" checked><span class="track"></span> Kırpınca cevap sor
+  </label>
+  <label class="switch" title="Çizdiğin kutunun etrafındaki beyaz boşluğu otomatik daraltır">
+    <input type="checkbox" id="autoTrim" checked><span class="track"></span> Boşlukları kırp
+  </label>
+  <div class="zoom" role="group" aria-label="Yakınlaştırma">
+    <button class="icon-btn" id="zoomOut" title="Uzaklaştır" aria-label="Uzaklaştır"><svg class="ic"><use href="#i-minus"/></svg></button>
+    <span id="zoomLabel">100%</span>
+    <button class="icon-btn" id="zoomIn" title="Yakınlaştır" aria-label="Yakınlaştır"><svg class="ic"><use href="#i-plus"/></svg></button>
+  </div>
+</header>
+
+<main>
+  <section class="viewer" id="viewer">
+    <div class="empty" id="emptyState">
+      <div class="empty-card">
+        <p class="eyebrow">Profesyonel sınav atölyesi</p>
+        <h1>Kendi testini <em>zarafetle</em> hazırla</h1>
+        <p class="lead">Soru kitapçığından istediğin soruları kes, sırala ve baskıya hazır, kusursuz bir sınav kağıdına dönüştür. Soru sınırı yok.</p>
+        <ol class="steps">
+          <li><span>I</span><b>Dosyayı aç</b>PDF kitapçık ya da sayfa fotoğrafı</li>
+          <li><span>II</span><b>Soruyu kes</b>Fareyle sorunun etrafına kutu çiz</li>
+          <li><span>III</span><b>Düzenle</b>Sırala, cevabını işaretle, şablon seç</li>
+          <li><span>IV</span><b>Yazdır</b>Tek tıkla baskıya hazır PDF</li>
+        </ol>
+        <label class="btn gold big">
+          <svg class="ic"><use href="#i-upload"/></svg> Dosya Seç
+          <input type="file" id="fileInput2" accept="application/pdf,.pdf,image/*" multiple hidden>
+        </label>
+        <p class="note"><svg class="ic"><use href="#i-shield"/></svg> Dosyaları bu pencereye sürükleyip bırakabilirsin. Hiçbir dosya bilgisayarından dışarı çıkmaz.</p>
+      </div>
+    </div>
+    <div id="pages"></div>
+  </section>
+
+  <aside class="side">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="qPanel" role="tab"><svg class="ic"><use href="#i-list"/></svg> Sorular <span class="count" id="qCount">0</span></button>
+      <button class="tab" data-tab="setPanel" role="tab"><svg class="ic"><use href="#i-sliders"/></svg> Sayfa Ayarları</button>
+    </div>
+
+    <div class="panel" id="qPanel">
+      <div class="panel-tools">
+        <button class="btn ghost small" id="undoBtn" title="Son eklenen soruyu sil (Ctrl+Z)"><svg class="ic"><use href="#i-undo"/></svg> Geri al</button>
+        <button class="btn ghost small danger" id="clearBtn"><svg class="ic"><use href="#i-trash"/></svg> Tümünü sil</button>
+      </div>
+      <div id="qList" class="q-list"></div>
+    </div>
+
+    <div class="panel" id="setPanel" hidden>
+      <section class="group">
+        <h3>Test türü</h3>
+        <div class="modes">
+          <button data-mode="yaprak">Yaprak Test</button>
+          <button data-mode="yazili">Yazılı Kağıdı</button>
+          <button data-mode="deneme">Deneme Sınavı</button>
+        </div>
+      </section>
+
+      <section class="group">
+        <h3>Başlık bilgileri</h3>
+        <div class="field"><label>Okul adı</label><input type="text" data-key="school" placeholder="ör. Atatürk Ortaokulu"></div>
+        <div class="field"><label>Test / ders adı</label><input type="text" data-key="title" placeholder="ör. MATEMATİK"></div>
+        <div class="field"><label>Sınav adı</label><input type="text" data-key="examName" list="examNames" placeholder="Listeden seç ya da yaz">
+          <datalist id="examNames">
+            <option value="1. Dönem 1. Yazılı Sınavı"></option>
+            <option value="1. Dönem 2. Yazılı Sınavı"></option>
+            <option value="2. Dönem 1. Yazılı Sınavı"></option>
+            <option value="2. Dönem 2. Yazılı Sınavı"></option>
+            <option value="1. Dönem 1. Çoktan Seçmeli Test Sınavı"></option>
+            <option value="1. Dönem 2. Çoktan Seçmeli Test Sınavı"></option>
+            <option value="2. Dönem 1. Çoktan Seçmeli Test Sınavı"></option>
+            <option value="2. Dönem 2. Çoktan Seçmeli Test Sınavı"></option>
+            <option value="Deneme Sınavı"></option>
+            <option value="Tarama Testi"></option>
+          </datalist>
+        </div>
+        <div class="field"><label>Açıklama (konu, tarih, süre…)</label><input type="text" data-key="subtitle"></div>
+        <div class="field inline"><label>Sınıf / Şube</label><input type="text" data-key="className" placeholder="ör. 8-A"></div>
+        <label class="chk"><input type="checkbox" data-key="studentLine"><span class="box"></span> Öğrenci bilgi satırı (Ad Soyad, Sınıf, No, Puan)</label>
+        <label class="chk"><input type="checkbox" data-key="showTeacher"><span class="box"></span> Kağıda öğretmen ismini ekle</label>
+        <div class="field"><input type="text" data-key="teacher" placeholder="Öğretmenin adı soyadı" aria-label="Öğretmenin adı soyadı"></div>
+      </section>
+
+      <section class="group">
+        <h3>Sayfa düzeni</h3>
+        <div class="field inline"><label>Kağıt boyutu</label>
+          <select data-key="paper">
+            <option value="A4">A4</option><option value="A5">A5</option><option value="A3">A3</option>
+            <option value="B5">B5</option><option value="Letter">Letter</option><option value="Legal">Legal</option>
+          </select></div>
+        <div class="field inline"><label>Yönlendirme</label>
+          <select data-key="orientation"><option value="portrait">Dikey</option><option value="landscape">Yatay</option></select></div>
+        <div class="field inline"><label>Sütun sayısı</label>
+          <select data-key="columns" data-num><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+        <div class="field inline"><label>Kenar boşluğu</label>
+          <select data-key="marginPreset"><option value="dar">Dar</option><option value="normal">Normal</option><option value="genis">Geniş</option><option value="ozel">Özel</option></select></div>
+        <div class="field"><label>Kenar boşluğu <b data-out="margin"></b></label><input type="range" min="14" max="85" step="1" data-key="margin"></div>
+        <div class="field"><label>Soru boyutu <b data-out="scale"></b></label><input type="range" min="50" max="150" step="5" data-key="scale"></div>
+        <div class="field"><label>Sorular arası boşluk <b data-out="spacing"></b></label><input type="range" min="0" max="80" step="2" data-key="spacing"></div>
+        <div class="field"><label>Soru altında cevap boşluğu <b data-out="answerSpace"></b></label><input type="range" min="0" max="300" step="10" data-key="answerSpace"></div>
+        <label class="chk"><input type="checkbox" data-key="divider"><span class="box"></span> Sütunlar arasına çizgi</label>
+        <label class="chk"><input type="checkbox" data-key="numbering"><span class="box"></span> Soru numarası ekle</label>
+        <div class="field inline"><label>Başlangıç numarası</label><input type="number" min="1" data-key="startNo"></div>
+      </section>
+
+      <section class="group">
+        <h3>Görünüm</h3>
+        <div class="field"><label>Sayfa tasarım rengi</label>
+          <div class="swatches">
+            <button class="swatch" data-color="#1e3a8a" style="--c:#1e3a8a" title="Lacivert" aria-label="Lacivert"></button>
+            <button class="swatch" data-color="#0f5f56" style="--c:#0f5f56" title="Zümrüt" aria-label="Zümrüt"></button>
+            <button class="swatch" data-color="#8b1e2d" style="--c:#8b1e2d" title="Bordo" aria-label="Bordo"></button>
+            <button class="swatch" data-color="#5b2a86" style="--c:#5b2a86" title="Mor" aria-label="Mor"></button>
+            <button class="swatch" data-color="#9a6b1f" style="--c:#9a6b1f" title="Altın" aria-label="Altın"></button>
+            <button class="swatch" data-color="#14161c" style="--c:#14161c" title="Siyah" aria-label="Siyah"></button>
+            <input type="color" data-key="color" title="Başka renk seç" aria-label="Başka renk seç">
+          </div></div>
+        <div class="field"><label>Filigran yazısı (boş bırakırsan eklenmez)</label><input type="text" data-key="watermark" placeholder="ör. okul adı"></div>
+      </section>
+
+      <section class="group">
+        <h3>Diğer</h3>
+        <label class="chk"><input type="checkbox" data-key="pageNumbers"><span class="box"></span> Sayfa numarası</label>
+        <label class="chk"><input type="checkbox" data-key="answerKey"><span class="box"></span> Sona cevap anahtarı sayfası ekle</label>
+        <p class="hint"><svg class="ic"><use href="#i-check"/></svg> Sorular orijinal PDF kalitesinde (vektörel) aktarılır; yazdırınca bulanık olmaz.</p>
+      </section>
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" id="previewBtn"><svg class="ic"><use href="#i-eye"/></svg> Önizle</button>
+      <button class="btn gold" id="buildBtn"><svg class="ic"><use href="#i-download"/></svg> PDF Oluştur</button>
+    </div>
+  </aside>
+</main>
+
+<div id="busy" hidden><div class="busy-card"><div class="spinner"></div><span id="busyText">PDF hazırlanıyor…</span></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="dropHint" hidden><div><svg class="ic"><use href="#i-upload"/></svg>Dosyayı buraya bırak</div></div>
+
+<script src="lib/pdf.worker.min.js"></script>
+<script src="lib/pdf.min.js"></script>
+<script src="lib/pdf-lib.min.js"></script>
+<script src="lib/Sortable.min.js"></script>
+<script src="app/app.js"></script>
+</body>
+</html>

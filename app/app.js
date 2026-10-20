@@ -41,39 +41,27 @@ const S = {
   pages: [],       // page states of the active doc in the viewer
 };
 
-/* ---------- Kalıcı kayıt (IndexedDB) ---------- */
-const DB = {
-  db: null,
-  open() {
-    return new Promise((res, rej) => {
-      const r = indexedDB.open('test-hazirlayici', 1);
-      r.onupgradeneeded = () => r.result.createObjectStore('kv');
-      r.onsuccess = () => res(this.db = r.result);
-      r.onerror = () => rej(r.error);
-    });
-  },
-  tx(mode, fn) {
-    return new Promise((res, rej) => {
-      if (!this.db) return res(undefined);
-      const t = this.db.transaction('kv', mode);
-      const req = fn(t.objectStore('kv'));
-      t.oncomplete = () => res(req && req.result);
-      t.onerror = () => rej(t.error);
-    });
-  },
-  get(k) { return this.tx('readonly', s => s.get(k)); },
-  set(k, v) { return this.tx('readwrite', s => s.put(v, k)); },
-};
-
-function saveDocs() {
-  DB.set('docs', S.docs.map(d => ({ id: d.id, name: d.name, bytes: d.bytes }))).catch(console.warn);
-}
+/* ---------- Ayarların hatırlanması ----------
+   Her açılışta temiz başlanır: PDF'ler ve seçilen sorular saklanmaz.
+   Yalnızca sayfa ayarları (okul adı, şablon vb.) bu tarayıcıda hatırlanır. */
+const SETTINGS_KEY = 'alagoez-test-maker:settings';
 let saveTimer;
 function saveState() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    DB.set('state', { questions: S.questions, settings: S.settings, zoom: S.zoom, activeDoc: S.activeDoc }).catch(console.warn);
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(S.settings)); } catch { /* depolama kapalı olabilir */ }
   }, 300);
+}
+function loadSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+    if (saved && typeof saved === 'object') Object.assign(S.settings, saved);
+  } catch { /* bozuk ya da erişilemeyen kayıt: varsayılanlarla devam */ }
+  S.settings.marginPreset = Object.keys(MARGINS).find(p => MARGINS[p] === S.settings.margin) || 'ozel';
+}
+// Eski sürümlerin PDF ve soruları sakladığı veritabanını temizle (yer kaplamasın, tekrar yüklenmesin).
+function clearOldStorage() {
+  try { indexedDB.deleteDatabase('test-hazirlayici'); } catch { /* yoksa sorun değil */ }
 }
 
 /* ---------- Yardımcılar ---------- */
@@ -83,15 +71,17 @@ function toast(msg, ms = 2600) {
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
 }
+let busyOn = false;
 function busy(on, text) {
   const b = $('#busy');
   if (text) $('#busyText').textContent = text;
+  busyOn = on;
   if (on) {
     b.hidden = false;
-    requestAnimationFrame(() => b.classList.add('show'));
+    requestAnimationFrame(() => { if (busyOn) b.classList.add('show'); });
   } else {
     b.classList.remove('show');
-    setTimeout(() => { if (!b.classList.contains('show')) b.hidden = true; }, 220);
+    setTimeout(() => { if (!busyOn) { b.classList.remove('show'); b.hidden = true; } }, 220);
   }
 }
 
@@ -185,7 +175,7 @@ async function addFiles(files) {
   busy(false);
   if (last) {
     S.activeDoc = last.id;
-    saveDocs(); saveState();
+    saveState();
     renderTabs(); renderViewer();
   }
 }
@@ -199,7 +189,7 @@ async function removeDoc(id) {
   S.docs = S.docs.filter(d => d.id !== id);
   doc.pdf.destroy();
   if (S.activeDoc === id) S.activeDoc = S.docs[0]?.id || null;
-  saveDocs(); saveState();
+  saveState();
   renderTabs(); renderViewer(); renderQList();
 }
 
@@ -1018,44 +1008,15 @@ function bindUi() {
 }
 
 /* ---------- Başlangıç ---------- */
-async function init() {
+function init() {
+  clearOldStorage();
+  loadSettings();
   bindUi();
   bindSettings();
   requestAnimationFrame(() => moveIndicator($('.tabs')));
   renderTabs();
   renderQList();
   renderViewer();
-  // Önceki çalışmayı geri yükle (kayıt kullanılamazsa uygulama yine çalışır).
-  try {
-    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IndexedDB zaman aşımı')), 4000));
-    await Promise.race([DB.open(), timeout]);
-    const [docs, state] = await Promise.all([DB.get('docs'), DB.get('state')]);
-    if (state) {
-      Object.assign(S.settings, state.settings || {});
-      S.settings.marginPreset = Object.keys(MARGINS).find(p => MARGINS[p] === S.settings.margin) || 'ozel';
-      S.zoom = state.zoom || 1;
-      syncSettingsInputs();
-    }
-    if (docs?.length) {
-      busy(true, 'Önceki çalışman yükleniyor…');
-      for (const d of docs) {
-        try { await openPdfBytes(d.name, d.bytes, d.id); } catch (err) { console.warn('restore failed', d.name, err); }
-      }
-      const ids = new Set(S.docs.map(d => d.id));
-      S.questions = (state?.questions || []).filter(q => ids.has(q.docId));
-      S.questions.forEach(q => enterIds.add(q.id));
-      S.activeDoc = ids.has(state?.activeDoc) ? state.activeDoc : S.docs[0]?.id || null;
-      busy(false);
-    }
-  } catch (err) {
-    console.warn('Kayıt kullanılamıyor:', err);
-    busy(false);
-    return;
-  }
-  renderTabs();
-  renderQList();
-  await renderViewer();
-  enterIds.clear();
 }
 
 init();

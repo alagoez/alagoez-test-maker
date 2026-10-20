@@ -12,7 +12,7 @@ PDF soru kitapçıklarından ya da sayfa fotoğraflarından soruları kırpıp b
 - Kağıt boyutu (A4, A5, A3, B5, Letter, Legal), dikey/yatay, 1–4 sütun, kenar boşlukları
 - Sayfa tasarım rengi, filigran, sayfa numarası, cevap anahtarı sayfası
 - Sorular orijinal PDF kalitesinde (vektörel) aktarılır
-- Çalışma tarayıcıda otomatik kaydedilir
+- Her açılışta temiz başlar; yalnızca sayfa ayarları (okul adı, şablon vb.) hatırlanır
 
 ## Kullanım
 

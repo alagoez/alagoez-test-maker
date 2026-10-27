@@ -12,7 +12,7 @@
 <meta property="og:description" content="PDF'ten soru kırpıp baskıya hazır test oluşturun.">
 <meta property="og:image" content="app/assets/og-image.png">
 <link rel="stylesheet" href="lib/fonts/fonts.css">
-<link rel="stylesheet" href="app/style.css">
+<link rel="stylesheet" href="app/style.css?v=5">
 </head>
 <body>
 <!-- İkon seti (Lucide çizgi stili) -->
@@ -154,6 +154,32 @@
         <div class="field inline"><label>Başlangıç numarası</label><input type="number" min="1" data-key="startNo"></div>
       </section>
 
+      <section class="group" id="opticGroup">
+        <h3>Optik form</h3>
+        <label class="chk"><input type="checkbox" data-key="optic"><span class="box"></span> Teste optik cevap formu ekle</label>
+        <div class="optic-opts"><div class="optic-inner">
+          <div class="field inline"><label>Yerleşim</label>
+            <select data-key="opticPlace"><option value="end">Testin sonunda</option><option value="start">Testin başında</option></select></div>
+          <div class="field inline"><label>Sayfa başına</label>
+            <select data-key="opticPerPage" data-num><option value="1">1 form (tam sayfa)</option><option value="2">2 form (yarım sayfa)</option></select></div>
+          <div class="field inline"><label>Şık sayısı</label>
+            <select data-key="opticChoices" data-num><option value="4">4 şık (A–D)</option><option value="5">5 şık (A–E)</option></select></div>
+          <div class="field inline"><label>Soru sayısı</label><input type="number" min="0" max="200" data-key="opticCount" placeholder="Otomatik"></div>
+          <p class="hint small" id="opticCountHint"></p>
+          <div class="field inline"><label>Öğrenci no hanesi</label>
+            <select data-key="opticDigits" data-num><option value="0">Yok</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option></select></div>
+          <div class="field inline"><label>Kitapçık türü</label>
+            <select data-key="opticBooklet"><option value="none">Yok</option><option value="AB">A – B</option><option value="ABCD">A – B – C – D</option></select></div>
+          <label class="chk"><input type="checkbox" data-key="opticKey"><span class="box"></span> Öğretmen için dolu cevap anahtarı optiği</label>
+          <button type="button" class="optic-preview" id="opticPreview" title="Büyütmek için tıkla" aria-label="Optik form önizlemesi, büyütmek için tıkla">
+            <canvas id="opticCanvas" width="10" height="14"></canvas>
+            <span class="optic-tag">Canlı önizleme</span>
+          </button>
+          <button type="button" class="btn ghost small optic-dl" id="opticDownload"><svg class="ic"><use href="#i-download"/></svg> Sadece optik formu indir</button>
+          <p class="hint"><svg class="ic"><use href="#i-check"/></svg> Köşelerdeki kareler optik okuyucu ve telefon taraması içindir. Formu her zaman A4 ve %100 ölçekte yazdırın.</p>
+        </div></div>
+      </section>
+
       <section class="group">
         <h3>Görünüm</h3>
         <div class="field"><label>Sayfa tasarım rengi</label>
@@ -192,6 +218,7 @@
 <script src="lib/pdf.min.js"></script>
 <script src="lib/pdf-lib.min.js"></script>
 <script src="lib/Sortable.min.js"></script>
-<script src="app/app.js"></script>
+<script src="app/optic.js?v=6"></script>
+<script src="app/app.js?v=5"></script>
 </body>
 </html>

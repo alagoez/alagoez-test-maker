@@ -19,7 +19,7 @@ const MARGINS = { dar: 28, normal: 42, genis: 71 }; // ≈ 1 / 1,5 / 2,5 cm
 const MODES = {
   yaprak: { columns: 2, answerSpace: 0, spacing: 16 },
   yazili: { columns: 1, answerSpace: 90, spacing: 10 },
-  deneme: { columns: 2, answerSpace: 0, spacing: 14, answerKey: true },
+  deneme: { columns: 2, answerSpace: 0, spacing: 14, answerKey: true, optic: true },
 };
 
 const DEFAULTS = {
@@ -30,6 +30,9 @@ const DEFAULTS = {
   divider: true, numbering: true, startNo: 1, scale: 100, spacing: 16, answerSpace: 0,
   color: '#111111', watermark: '',
   pageNumbers: true, answerKey: true,
+  // Optik form
+  optic: false, opticPlace: 'end', opticPerPage: 1, opticChoices: 5, opticCount: 0,
+  opticDigits: 4, opticBooklet: 'none', opticKey: true,
 };
 
 const S = {
@@ -504,6 +507,7 @@ function renderQList() {
 }
 
 function afterQChange() {
+  scheduleOpticPreview();
   renderQList();
   refreshSelections();
   enterIds.clear();
@@ -749,6 +753,11 @@ async function buildPdf() {
     pageInfo.push({ page, topY });
     col = 0; y = topY;
   };
+  // Optik form sayfaları (numaralandırmaya dahil edilmez)
+  const opticRefs = new Set();
+  const addOptic = async key => (await addOpticPages(out, { key })).forEach(p => opticRefs.add(p.ref.toString()));
+  if (set.optic && set.opticPlace === 'start') await addOptic(false);
+
   // Sütunda yer yoksa sonraki sütuna/sayfaya geç.
   const ensure = need => {
     if (y - need < bottomY && y < topY) {
@@ -802,6 +811,8 @@ async function buildPdf() {
     }
   }
 
+  if (set.optic && set.opticPlace !== 'start') await addOptic(false);
+
   // 3) Cevap anahtarı
   if (set.answerKey && qs.some(q => q.answer)) {
     const perRow = 5, rowH = 22, keyColW = (PW - 2 * m) / perRow;
@@ -820,9 +831,12 @@ async function buildPdf() {
     });
   }
 
-  // 4) Sayfa numaraları
+  // Öğretmen için dolu optik cevap anahtarı
+  if (set.optic && set.opticKey && qs.some(q => q.answer)) await addOptic(true);
+
+  // 4) Sayfa numaraları (optik form sayfaları hariç)
   if (set.pageNumbers) {
-    const all = out.getPages();
+    const all = out.getPages().filter(p => !opticRefs.has(p.ref.toString()));
     all.forEach((p, i) => {
       const t = `${i + 1} / ${all.length}`;
       p.drawText(t, { x: (PW - reg.widthOfTextAtSize(t, 9)) / 2, y: m - 4, size: 9, font: reg, color: rgb(0.35, 0.35, 0.35) });
@@ -864,11 +878,13 @@ function syncSettingsInputs() {
     if (el.type === 'text' && el === document.activeElement) return; // yazarken imleci bozma
     if (el.type === 'checkbox') el.checked = !!set[k];
     else if (el.type === 'radio') el.checked = String(set[k]) === el.value;
+    else if (k === 'opticCount' && !(+set[k] > 0)) el.value = ''; // boş = otomatik
     else el.value = set[k];
   });
   document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === set.mode));
   document.querySelectorAll('.swatch').forEach(b => b.classList.toggle('active', b.dataset.color.toLowerCase() === String(set.color).toLowerCase()));
   moveIndicator($('.modes'));
+  $('#opticGroup')?.classList.toggle('on', !!set.optic);
   updateOutputs();
 }
 function bindSettings() {
@@ -885,13 +901,14 @@ function bindSettings() {
       if (k === 'margin') set.marginPreset = Object.keys(MARGINS).find(p => MARGINS[p] === set.margin) || 'ozel';
       syncSettingsInputs();
       if (k === 'startNo') { renderQList(); refreshSelections(); }
+      if (/^(optic|title$|school$|examName$|className$|startNo$)/.test(k)) scheduleOpticPreview();
       saveState();
     });
   });
   document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
     set.mode = b.dataset.mode;
     Object.assign(set, MODES[set.mode]);
-    syncSettingsInputs(); saveState();
+    syncSettingsInputs(); saveState(); scheduleOpticPreview();
     toast(`${b.textContent} şablonu uygulandı.`);
   }));
   document.querySelectorAll('.swatch').forEach(b => b.addEventListener('click', () => {
@@ -935,9 +952,18 @@ function bindUi() {
       p.classList.remove('enter');
       if (!p.hidden) { void p.offsetWidth; p.classList.add('enter'); }
     });
+    if (t.dataset.tab === 'setPanel') scheduleOpticPreview();
     moveIndicator($('.modes'));
   }));
   document.addEventListener('pointerdown', ripple);
+  $('#opticDownload').addEventListener('click', downloadOptic);
+  $('#opticPreview').addEventListener('click', () => {
+    const bytes = $('#opticPreview')._bytes;
+    if (!bytes) return;
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  });
   window.addEventListener('resize', () => { moveIndicator($('.tabs')); moveIndicator($('.modes')); });
 
   const list = $('#qList');
